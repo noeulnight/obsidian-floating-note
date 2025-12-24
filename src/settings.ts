@@ -2,11 +2,13 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 import FloatingNote from "./main";
 
 export interface FloatingNoteSettings {
-	mySetting: string;
+	fileNameFormat: string;
+	fileFolderPath: string;
 }
 
 export const DEFAULT_SETTINGS: FloatingNoteSettings = {
-	mySetting: "default",
+	fileNameFormat: "YYYY-MM-DD HH:mm:ss",
+	fileFolderPath: "",
 };
 
 export class FloatingNoteSettingTab extends PluginSettingTab {
@@ -23,16 +25,35 @@ export class FloatingNoteSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Settings #1")
-			.setDesc("It's a secret")
+			.setName("Title format")
+			.setDesc("Format for naming new floating note files.")
 			.addText((text) =>
 				text
-					.setPlaceholder("Enter your secret")
-					.setValue(this.plugin.settings.mySetting)
+					.setPlaceholder("Enter filename format")
+					.setValue(this.plugin.settings.fileNameFormat)
 					.onChange(async (value) => {
-						this.plugin.settings.mySetting = value;
+						this.plugin.settings.fileNameFormat = value;
 						await this.plugin.saveSettings();
 					})
 			);
+
+		new Setting(containerEl)
+			.setName("Folder path")
+			.setDesc(
+				"Folder path to save new floating note files. Leave empty to save in the vault root."
+			)
+			.addDropdown((dropdown) => {
+				const folders = this.app.vault.getAllFolders();
+
+				folders.forEach((folder) => {
+					dropdown.addOption(folder.path, folder.path);
+				});
+
+				dropdown.setValue(this.plugin.settings.fileFolderPath);
+				dropdown.onChange(async (value) => {
+					this.plugin.settings.fileFolderPath = value;
+					await this.plugin.saveSettings();
+				});
+			});
 	}
 }

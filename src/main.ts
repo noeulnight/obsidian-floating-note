@@ -1,4 +1,4 @@
-import { Menu, Plugin } from "obsidian";
+import { Plugin, TFile, moment } from "obsidian";
 import {
 	DEFAULT_SETTINGS,
 	FloatingNoteSettings,
@@ -13,17 +13,25 @@ export default class FloatingNote extends Plugin {
 		await this.loadSettings();
 
 		this.addCommand({
-			id: "open-floating-note-window",
-			name: "Open floating note window",
+			id: "open-note-floating-window",
+			name: "Open note in floating window",
 			icon: "popup-open",
 			callback: () => this.createLeafWindow(),
 		});
 
-		this.addRibbonIcon("popup-open", "Open floating note window", () => {
+		this.addRibbonIcon("popup-open", "Open note in floating window", () => {
 			void this.createLeafWindow();
 		});
 
 		this.addSettingTab(new FloatingNoteSettingTab(this.app, this));
+	}
+
+	async createFile(): Promise<TFile> {
+		const fileName = moment().format(this.settings.fileNameFormat) + ".md";
+		const folderPath = this.settings.fileFolderPath.trim();
+		const fullPath = folderPath ? `${folderPath}/${fileName}` : fileName;
+
+		return await this.app.vault.create(fullPath, "");
 	}
 
 	async createLeafWindow() {
@@ -32,7 +40,6 @@ export default class FloatingNote extends Plugin {
 		);
 
 		const leafWindow = this.app.workspace.getLeaf("window");
-
 		this.app.workspace.setActiveLeaf(leafWindow, { focus: true });
 
 		const newWindowIds = remote.BrowserWindow.getAllWindows().map(
@@ -48,29 +55,61 @@ export default class FloatingNote extends Plugin {
 				electronWindow.setAlwaysOnTop(true, "screen-saver");
 				electronWindow.setOpacity(0.95);
 				await electronWindow.webContents.executeJavaScript(`
-						// Hide individual tab buttons
-						const tabButtons = document.querySelectorAll('.workspace-tab-header');
-						tabButtons.forEach(tab => {
-							tab.style.display = 'none';
+						// Inject persistent styles
+						const styleId = 'floating-note-styles';
+						if (!document.getElementById(styleId)) {
+							const style = document.createElement('style');
+							style.id = styleId;
+							style.textContent = \`
+								.workspace-tab-header-container {
+									display: none !important;
+								}
+								.view-header-left {
+									display: none !important;
+								}
+								.view-header {
+									-webkit-app-region: drag !important;
+									cursor: grab !important;
+								}
+								.view-header:active {
+									cursor: grabbing !important;
+								}
+							\`;
+							document.head.appendChild(style);
+						}
+
+						// Apply styles to existing elements
+						const applyStyles = () => {
+							const tabContainers = document.querySelectorAll('.workspace-tab-header-container');
+							tabContainers.forEach(container => container.style.display = 'none');
+
+							const viewButtons = document.querySelectorAll('.view-header-left');
+							viewButtons.forEach(button => button.style.display = 'none');
+
+							const viewHeaders = document.querySelectorAll('.view-header');
+							viewHeaders.forEach(header => {
+								header.style.webkitAppRegion = 'drag';
+								header.style.cursor = 'grab';
+							});
+						};
+
+						applyStyles();
+
+						// Watch for DOM changes and reapply styles
+						const observer = new MutationObserver(() => {
+							applyStyles();
 						});
 
-						// Hide new tab button and other controls
-						const newTabButtons = document.querySelectorAll('.workspace-tab-header-new-tab');
-						newTabButtons.forEach(btn => {
-							btn.style.display = 'none';
-						});
-
-						// Minimize tab header height but keep it draggable
-						const tabContainers = document.querySelectorAll('.workspace-tab-header-container');
-						tabContainers.forEach(container => {
-							container.style.minHeight = '40px';
-							container.style.height = '40px';
-							container.style.backgroundColor = 'transparent';
-							container.style.borderBottom = 'none';
+						observer.observe(document.body, {
+							childList: true,
+							subtree: true
 						});
 					`);
 			}
 		}
+
+		const file = await this.createFile();
+		await leafWindow.openFile(file);
 	}
 
 	onunload() {}
