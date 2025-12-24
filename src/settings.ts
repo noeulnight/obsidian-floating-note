@@ -4,11 +4,13 @@ import FloatingNote from "./main";
 export interface FloatingNoteSettings {
 	fileNameFormat: string;
 	fileFolderPath: string;
+	opacity: number;
 }
 
 export const DEFAULT_SETTINGS: FloatingNoteSettings = {
 	fileNameFormat: "YYYY-MM-DD HH:mm:ss",
 	fileFolderPath: "",
+	opacity: 9.5,
 };
 
 export class FloatingNoteSettingTab extends PluginSettingTab {
@@ -55,5 +57,21 @@ export class FloatingNoteSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				});
 			});
+
+		new Setting(containerEl)
+			.setName("Window opacity")
+			.setDesc(
+				"Set the opacity of the floating note window (0.1 to 1.0)."
+			)
+			.addSlider((slider) =>
+				slider
+					.setLimits(0.1, 1, 0.05)
+					.setValue(this.plugin.settings.opacity)
+					.onChange(async (value) => {
+						this.plugin.settings.opacity = value;
+						await this.plugin.saveSettings();
+					})
+					.showTooltip()
+			);
 	}
 }

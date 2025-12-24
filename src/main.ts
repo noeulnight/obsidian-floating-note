@@ -68,7 +68,7 @@ export default class FloatingNote extends Plugin {
 			if (electronWindow) {
 				electronWindow.setSize(350, 700);
 				electronWindow.setAlwaysOnTop(true, "screen-saver");
-				electronWindow.setOpacity(0.95);
+				electronWindow.setOpacity(this.settings.opacity);
 				await electronWindow.webContents.executeJavaScript(`
 						// Inject persistent styles
 						const styleId = 'floating-note-styles';
