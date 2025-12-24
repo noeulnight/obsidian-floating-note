@@ -1,90 +1,128 @@
-# Obsidian Sample Plugin
+# Floating Note
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+An Obsidian plugin that creates floating, always-on-top note windows perfect for quick notes, reference material, or keeping important information visible while you work.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## Features
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+-   **Always on Top**: Floating windows stay above other applications
+-   **Quick Access**: Create new floating notes or float your current note
+-   **Customizable Appearance**: Adjust window opacity to suit your workflow
+-   **Clean Interface**: Streamlined UI with hidden tab headers and draggable window area
+-   **Flexible Organization**: Configure default folder location and filename format
 
-## First time developing plugins?
+## Usage
 
-Quick starting guide for new plugin devs:
+### Commands
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+The plugin provides two commands accessible via the command palette (Cmd/Ctrl + P):
 
-## Releasing new releases
+1. **Open new tab in floating window**: Creates a new note in a floating window
+2. **Open current tab in floating window**: Opens the currently active note in a floating window
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+### Window Behavior
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+-   Floating windows are sized at 350x700 pixels for optimal side-by-side viewing
+-   Windows stay on top of all other applications
+-   Drag the header area to reposition the window
+-   Each floating window is an independent Obsidian window
 
-## Adding your plugin to the community plugin list
+## Settings
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+Configure the plugin behavior in Settings → Floating Note:
 
-## How to use
+### Title Format
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+Customize the filename format for new floating notes using moment.js format strings.
 
-## Manually installing the plugin
+-   **Default**: `YYYY-MM-DD HH:mm:ss`
+-   **Example**: Notes created on December 24, 2025 at 2:30 PM would be named `2025-12-24 14:30:00.md`
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+### Folder Path
 
-## Improve code quality with eslint
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
+Choose where new floating notes are saved.
 
-## Funding URL
+-   **Default**: Vault root
+-   **Options**: Any existing folder in your vault
 
-You can include funding URLs where people who use your plugin can financially support it.
+### Window Opacity
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+Adjust the transparency of floating windows.
 
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+-   **Range**: 0.1 (very transparent) to 1.0 (fully opaque)
+-   **Default**: 0.95
+
+## Use Cases
+
+-   **Quick Capture**: Jot down ideas without switching away from your current work
+-   **Reference Material**: Keep documentation or notes visible while coding or writing
+-   **Task Lists**: Maintain a visible todo list alongside your main workspace
+-   **Meeting Notes**: Take notes in a floating window during video calls
+-   **Code Snippets**: Keep frequently used snippets accessible
+
+## Installation
+
+### From Obsidian Community Plugins
+
+1. Open Settings → Community Plugins
+2. Disable Safe Mode
+3. Browse and search for "Floating Note"
+4. Install and enable the plugin
+
+### Manual Installation
+
+1. Download the latest release files: `main.js`, `manifest.json`, and `styles.css`
+2. Create a folder named `floating-note` in your vault's `.obsidian/plugins/` directory
+3. Copy the downloaded files into the folder
+4. Reload Obsidian
+5. Enable the plugin in Settings → Community Plugins
+
+## Development
+
+### Prerequisites
+
+-   Node.js v22 or higher
+-   npm or yarn
+
+### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/obsidian-floating-note.git
+
+# Install dependencies
+npm install
+
+# Start development with hot reload
+npm run dev
 ```
 
-If you have multiple URLs, you can also do:
+### Build
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
+```bash
+# Build for production
+npm run build
 ```
 
-## API Documentation
+### Testing
 
-See https://docs.obsidian.md
+1. Copy `main.js`, `manifest.json`, and `styles.css` to your test vault's plugins folder
+2. Reload Obsidian to see your changes
+
+## Technical Details
+
+-   **Desktop Only**: This plugin requires Electron features and is not available on mobile
+-   **Electron Integration**: Uses `@electron/remote` for window manipulation
+-   **Window Properties**:
+    -   Always on top with `screen-saver` level
+    -   Draggable header area using `-webkit-app-region`
+    -   Persistent styles injected via JavaScript
+
+## Compatibility
+
+-   **Minimum Obsidian Version**: 0.15.0
+-   **Platform**: Desktop only (Windows, macOS, Linux)
+
+## Support
+
+-   **Author**: LimTaehyun
+-   **Website**: [limtaehyun.dev](https://limtaehyun.dev)

@@ -1,11 +1,10 @@
 {
 	"id": "floating-note",
 	"name": "Floating Note",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "Create floating notes that stay on top of other windows.",
 	"author": "LimTaehyun",
 	"authorUrl": "https://limtaehyun.dev",
-	"fundingUrl": "https://limtaehyun.dev/pricing",
 	"isDesktopOnly": true
 }
