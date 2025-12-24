@@ -14,9 +14,20 @@ export default class FloatingNote extends Plugin {
 
 		this.addCommand({
 			id: "open-note-floating-window",
-			name: "Open note in floating window",
+			name: "Open new tab in floating window",
 			icon: "popup-open",
 			callback: () => this.createLeafWindow(),
+		});
+
+		this.addCommand({
+			id: "open-current-note-floating-window",
+			name: "Open current tab in floating window",
+			icon: "popup-open",
+			callback: () => {
+				const activeFile =
+					this.app.workspace.getActiveFile() ?? undefined;
+				void this.createLeafWindow(activeFile);
+			},
 		});
 
 		this.addRibbonIcon("popup-open", "Open note in floating window", () => {
@@ -31,10 +42,13 @@ export default class FloatingNote extends Plugin {
 		const folderPath = this.settings.fileFolderPath.trim();
 		const fullPath = folderPath ? `${folderPath}/${fileName}` : fileName;
 
+		const exists = this.app.vault.getFileByPath(fullPath);
+		if (exists) return exists;
+
 		return await this.app.vault.create(fullPath, "");
 	}
 
-	async createLeafWindow() {
+	async createLeafWindow(targetFile?: TFile) {
 		const existingWindowIds = remote.BrowserWindow.getAllWindows().map(
 			(win) => win.id
 		);
@@ -52,6 +66,7 @@ export default class FloatingNote extends Plugin {
 		if (createdWindowId) {
 			const electronWindow = remote.BrowserWindow.fromId(createdWindowId);
 			if (electronWindow) {
+				electronWindow.setSize(350, 700);
 				electronWindow.setAlwaysOnTop(true, "screen-saver");
 				electronWindow.setOpacity(0.95);
 				await electronWindow.webContents.executeJavaScript(`
@@ -61,6 +76,9 @@ export default class FloatingNote extends Plugin {
 							const style = document.createElement('style');
 							style.id = styleId;
 							style.textContent = \`
+								.view-actions {
+									display: none !important;
+								}
 								.workspace-tab-header-container {
 									display: none !important;
 								}
@@ -108,7 +126,7 @@ export default class FloatingNote extends Plugin {
 			}
 		}
 
-		const file = await this.createFile();
+		const file = targetFile ? targetFile : await this.createFile();
 		await leafWindow.openFile(file);
 	}
 
